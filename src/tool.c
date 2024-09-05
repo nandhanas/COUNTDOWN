@@ -666,7 +666,7 @@ HIDDEN int read_intel_nom_freq()
             }
             else
             {   
-                fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo . Reading base frequency file\n");
+                fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo\n");
                 PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
 
             }
