@@ -628,34 +628,51 @@ HIDDEN void get_rand_postfix(char *postfix, int size)
 #ifdef INTEL
 HIDDEN int read_intel_nom_freq()
 {
+
     FILE *fd;
     char *result;
     float nom_freq;
-
+    printf("im inside nom freq\n");
     fd = fopen("/proc/cpuinfo", "r");
-    if (fd == NULL)
+    if(fd != NULL)
     {
-        fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo\n",
-            cntd->node.hostname, cntd->rank->world_rank);
-        PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+    	size_t n = 0;
+   	char *line = NULL;
+    	while(getline(&line, &n, fd) > 0)
+    	{
+        	if(!strncmp(line, "model name", 10))
+        	{
+            		result = strtok(line, ":");
+            		result = strtok(NULL, "@");
+            		result = strtok(NULL, "@");
+            		sscanf(result, " %fGHz", &nom_freq);
+           		break;
+        	}
+    	}
+    	free(line);
+    	fclose(fd);
+        nom_freq *= 1000;
     }
-
-    size_t n = 0;
-    char *line = NULL;
-    while(getline(&line, &n, fd) > 0) 
+    else
     {
-        if(!strncmp(line, "model name", 10))
+        fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo  Reading /sys/devices/system/cpu/cpu0/cpufreq/base_frequency file \n",
+            cntd->node.hostname, cntd->rank->world_rank);
+
+        fd = fopen("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency", "r");
+        if(fd != NULL)
         {
-            result = strtok(line, ":");
-            result = strtok(NULL, "@");
-            result = strtok(NULL, "@");
-            sscanf(result, " %fGHz", &nom_freq);
-            break;
+            fscanf(fd, "%f", &nom_freq);
+            nom_freq /= pow(10,3);
+
+        }
+        else
+        {
+            fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /sys/devices/system/cpu/cpu0/cpufreq/base_frequency\n",
+               cntd->node.hostname, cntd->rank->world_rank);
+            PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
         }
     }
-    free(line);
-    fclose(fd);
 
-    return (int) (nom_freq * 1000);
+    return (int) (nom_freq);
 }
 #endif
