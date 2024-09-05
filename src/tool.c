@@ -642,7 +642,6 @@ HIDDEN int read_intel_nom_freq()
     }
     else
     {
-            fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /sys/devices/system/cpu/cpu0/cpufreq/base_frequency\n", cntd->node.hostname, cntd->rank->world_rank);
     
             fd = fopen("/proc/cpuinfo", "r");
             if(fd != NULL)
