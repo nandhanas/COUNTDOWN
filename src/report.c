@@ -703,244 +703,257 @@ HIDDEN void print_final_report()
 		printf("######################################################\n");
 		printf("##################### COUNTDOWN ######################\n");
 		printf("######################################################\n");
-		printf("EXE time: %.3f sec\n", exe_time);
+		ft_table_t *table = ft_create_table();
+		ft_printf_ln(table,"%s|%.3f sec", "EXE time", exe_time);
+		printf("%s\n", ft_to_string(table));
+		ft_destroy_table(table);
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, "%.3f", exe_time);
 		printf("#################### GENERAL INFO ####################\n");
-		printf("Number of MPI Ranks:	%d\n", world_size);
-		printf("Number of Nodes:     	%d\n", local_master_size);
-		printf("Number of Sockets:     	%u\n", num_sockets);
-		printf("Number of CPUs:     	%u\n", num_cpus);
+		table = ft_create_table();
+		ft_printf_ln(table,"%s|%d","Number of MPI Ranks", world_size);
+		ft_printf_ln(table,"%s|%d","Number of Nodes", local_master_size);
+		ft_printf_ln(table,"%s|%u","Number of Sockets", num_sockets);
+		ft_printf_ln(table,"%s|%u","Number of CPUs", num_cpus);
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, ";%d;%d;%u;%u", 
 				world_size, local_master_size, num_sockets, num_cpus);
 #ifdef NVIDIA_GPU
-		printf("Number of GPUs:         %d\n", num_gpus);
+		ft_printf_ln(table,"%s|%d","Number of GPUs", num_gpus);
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, ";%d", num_gpus);
 #endif
+		printf("%s\n", ft_to_string(table));
+    		ft_destroy_table(table);
 		if(cntd->enable_power_monitor)
 		{
 			printf("##################### ENERGY #########################\n");
+			table = ft_create_table();
 #if defined(INTEL) || defined(POWER9) || defined(THUNDERX2)
-			printf("PKG:                    %.0f J\n", global_energy_pkg);
+			ft_printf_ln(table,"%s|%.0f J","PKG", global_energy_pkg);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.0f", global_energy_pkg);
 #endif
 #if defined(INTEL) || defined(POWER9)
 			if (global_energy_dram != 0) {
-				printf("DRAM:                   %.0f J\n", global_energy_dram);
+				ft_printf_ln(table,"%s|%.0f J","DRAM",global_energy_dram);
 				if(cntd->enable_report)
 					fprintf(summary_report_fd, ";%.0f", global_energy_dram);
 			}
 #endif
 #ifdef NVIDIA_GPU
-			printf("GPU:                    %.0f J\n", global_energy_gpu);
+			ft_printf_ln(table,"%s|%.0f J","GPU";global_energy_gpu);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.0f", global_energy_gpu);
 #elif POWER9
-			printf("GPU:                    %.0f J\n", global_energy_gpu_sys);
+			ft_printf_ln(table,"%s|%.0f J","GPU", global_energy_gpu_sys);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.0f", global_energy_gpu_sys);
 #endif
 #ifdef POWER9
-			printf("SYS:                    %.0f J\n", global_energy_sys);
+			ft_printf_ln(table,"%s|%.0f J","SYS",global_energy_sys);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.0f", global_energy_sys);
 #endif
+			printf("%s\n", ft_to_string(table));
+                        ft_destroy_table(table);
 			printf("##################### AVG POWER ######################\n");
+			table = ft_create_table();
 #if defined(INTEL) || defined(POWER9) || defined(THUNDERX2)
-			printf("PKG:                    %.2f W\n", global_energy_pkg / exe_time);
+			ft_printf_ln(table,"%s|%.2f W", "PKG",global_energy_pkg / exe_time);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.2f", global_energy_pkg / exe_time);
 #endif
 #if defined(INTEL) || defined(POWER9)
 			if (global_energy_dram != 0) {
-				printf("DRAM:                   %.2f W\n", global_energy_dram / exe_time);
+				ft_printf_ln(table,"%s|%.2f W", "DRAM",global_energy_dram / exe_time);
 				if(cntd->enable_report)
 					fprintf(summary_report_fd, ";%.2f", global_energy_dram / exe_time);
 			}
 #endif
 #ifdef NVIDIA_GPU
-			printf("GPU:                    %.2f W\n", global_energy_gpu / exe_time);
+			ft_printf_ln(table,"%s| %.2f W", "GPU",global_energy_gpu / exe_time);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.2f", global_energy_gpu / exe_time);
 #elif POWER9
-			printf("GPU:                    %.0f J\n", global_energy_gpu_sys / exe_time);
+			ft_printf_ln(table,"%s|%.0f J", "GPU",global_energy_gpu_sys / exe_time);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.2f", global_energy_gpu_sys / exe_time);
 #endif
 #ifdef POWER9
-			printf("SYS:                    %.2f W\n", global_energy_sys / exe_time);
+			ft_printf_ln(table,"%s|%.2f W", "SYS",global_energy_sys / exe_time);
 			if(cntd->enable_report) 
 				fprintf(summary_report_fd, ";%.2f", global_energy_sys / exe_time);
 #endif
+			printf("%s\n", ft_to_string(table));
+                        ft_destroy_table(table);
 		}
 
 		printf("################## PERFORMANCE INFO ##################\n");
+		table = ft_create_table();
 		if(mpi_net_data[SEND] < POW_2_10)
-			printf("MPI network - SENT:     %.0f Byte\n", (double) mpi_net_data[SEND]);
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI network - SENT",(double) mpi_net_data[SEND]);
 		else if(mpi_net_data[SEND] < POW_2_20)
-			printf("MPI network - SENT:     %.2f KByte\n", (double) mpi_net_data[SEND] / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_10);
 		else if(mpi_net_data[SEND] < POW_2_30)
-			printf("MPI network - SENT:     %.2f MByte\n", (double) mpi_net_data[SEND] / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_20);
 		else if(mpi_net_data[SEND] < POW_2_40)
-			printf("MPI network - SENT:     %.2f GByte\n", (double) mpi_net_data[SEND] / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_30);
 		else if(mpi_net_data[SEND] < POW_2_50)
-			printf("MPI network - SENT:     %.2f TByte\n", (double) mpi_net_data[SEND] / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_40);
 		else if(mpi_net_data[SEND] < POW_2_60)
-			printf("MPI network - SENT:     %.2f PByte\n", (double) mpi_net_data[SEND] / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f PByte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_50);
 		else
-			printf("MPI network - SENT:     %.2f PEyte\n", (double) mpi_net_data[SEND] / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f PEyte", "MPI network - SENT",(double) mpi_net_data[SEND] / POW_2_60);
 
 		if(mpi_net_data[RECV] < POW_2_10)
-			printf("MPI network - RECV:     %.0f Byte\n", (double) mpi_net_data[RECV]);
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI network - RECV",(double) mpi_net_data[RECV]);
 		else if(mpi_net_data[RECV] < POW_2_20)
-			printf("MPI network - RECV:     %.2f KByte\n", (double) mpi_net_data[RECV] / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_10);
 		else if(mpi_net_data[RECV] < POW_2_30)
-			printf("MPI network - RECV:     %.2f MByte\n", (double) mpi_net_data[RECV] / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_20);
 		else if(mpi_net_data[RECV] < POW_2_40)
-			printf("MPI network - RECV:     %.2f GByte\n", (double) mpi_net_data[RECV] / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_30);
 		else if(mpi_net_data[RECV] < POW_2_50)
-			printf("MPI network - RECV:     %.2f TByte\n", (double) mpi_net_data[RECV] / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_40);
 		else if(mpi_net_data[RECV] < POW_2_60)
-			printf("MPI network - RECV:     %.2f PByte\n", (double) mpi_net_data[RECV] / POW_2_50);
+			ft_printf_ln(table,"%s| %.2f PByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_50);
 		else
-			printf("MPI network - RECV:     %.2f EByte\n", (double) mpi_net_data[RECV] / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f EByte", "MPI network - RECV",(double) mpi_net_data[RECV] / POW_2_60);
 
 		if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_10)
-			printf("MPI network - TOT:      %.0f Byte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]));
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]));
 		else if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_20)
-			printf("MPI network - TOT:      %.2f KByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_10);
 		else if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_30)
-			printf("MPI network - TOT:      %.2f MByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_20);
 		else if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_40)
-			printf("MPI network - TOT:      %.2f GByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_30);
 		else if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_50)
-			printf("MPI network - TOT:      %.2f TByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_40);
 		else if((mpi_net_data[SEND] + mpi_net_data[RECV]) < POW_2_60)
-			printf("MPI network - TOT:      %.2f PByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f PByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_50);
 		else
-			printf("MPI network - TOT:      %.2f EByte\n", (double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f EByte", "MPI network - TOT",(double) (mpi_net_data[SEND] + mpi_net_data[RECV]) / POW_2_60);
 
 		if(cntd->enable_report) 
 			fprintf(summary_report_fd, ";%lu;%lu", mpi_net_data[SEND], mpi_net_data[RECV]);
 
 		if(mpi_file_data[WRITE] < POW_2_10)
-			printf("MPI file    - WRITE:    %.0f Byte\n", (double) mpi_file_data[WRITE]);
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI file - WRITE",(double) mpi_file_data[WRITE]);
 		else if(mpi_file_data[WRITE] < POW_2_20)
-			printf("MPI file    - WRITE:    %.2f KByte\n", (double) mpi_file_data[WRITE] / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_10);
 		else if(mpi_file_data[WRITE] < POW_2_30)
-			printf("MPI file    - WRITE:    %.2f MByte\n", (double) mpi_file_data[WRITE] / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_20);
 		else if(mpi_file_data[WRITE] < POW_2_40)
-			printf("MPI file    - WRITE:    %.2f GByte\n", (double) mpi_file_data[WRITE] / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_30);
 		else if(mpi_file_data[WRITE] < POW_2_50)
-			printf("MPI file    - WRITE:    %.2f TByte\n", (double) mpi_file_data[WRITE] / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_40);
 		else if(mpi_file_data[WRITE] < POW_2_60)
-			printf("MPI file    - WRITE:    %.2f PByte\n", (double) mpi_file_data[WRITE] / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f PByte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_50);
 		else
-			printf("MPI file    - WRITE:    %.2f PEyte\n", (double) mpi_file_data[WRITE] / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f PEyte", "MPI file - WRITE",(double) mpi_file_data[WRITE] / POW_2_60);
 
 		if(mpi_file_data[READ] < POW_2_10)
-			printf("MPI file    - READ:     %.0f Byte\n", (double) mpi_file_data[READ]);
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI file - READ",(double) mpi_file_data[READ]);
 		else if(mpi_file_data[READ] < POW_2_20)
-			printf("MPI file    - READ:     %.2f KByte\n", (double) mpi_file_data[READ] / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_10);
 		else if(mpi_file_data[READ] < POW_2_30)
-			printf("MPI file    - READ:     %.2f MByte\n", (double) mpi_file_data[READ] / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_20);
 		else if(mpi_file_data[READ] < POW_2_40)
-			printf("MPI file    - READ:     %.2f GByte\n", (double) mpi_file_data[READ] / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_30);
 		else if(mpi_file_data[READ] < POW_2_50)
-			printf("MPI file    - READ:     %.2f TByte\n", (double) mpi_file_data[READ] / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_40);
 		else if(mpi_file_data[READ] < POW_2_60)
-			printf("MPI file    - READ:     %.2f PByte\n", (double) mpi_file_data[READ] / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f PByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_50);
 		else
-			printf("MPI file    - READ:     %.2f EByte\n", (double) mpi_file_data[READ] / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f EByte", "MPI file - READ",(double) mpi_file_data[READ] / POW_2_60);
 
 		if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_10)
-			printf("MPI file    - TOT:      %.0f Byte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]));
+			ft_printf_ln(table,"%s|%.0f Byte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]));
 		else if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_20)
-			printf("MPI file    - TOT:      %.2f KByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f KByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_10);
 		else if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_30)
-			printf("MPI file    - TOT:      %.2f MByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f MByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_20);
 		else if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_40)
-			printf("MPI file    - TOT:      %.2f GByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f GByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_30);
 		else if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_50)
-			printf("MPI file    - TOT:      %.2f TByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f TByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_40);
 		else if((mpi_file_data[WRITE] + mpi_file_data[READ]) < POW_2_60)
-			printf("MPI file    - TOT:      %.2f PByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f PByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_50);
 		else
-			printf("MPI file    - TOT:      %.2f EByte\n", (double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_60);
+			ft_printf_ln(table,"%s|%.2f EByte", "MPI file - TOT",(double) (mpi_file_data[WRITE] + mpi_file_data[READ]) / POW_2_60);
 
 		if(cntd->enable_report) 
 			fprintf(summary_report_fd, ";%lu;%lu", mpi_file_data[WRITE], mpi_file_data[READ]);
 
 		if(max_mem_usage < POW_2_10)
-			printf("MAX Memory usage:   	%.0f KByte\n", (double) max_mem_usage);
+			ft_printf_ln(table,"%s|%.0f KByte", "MAX Memory usage",(double) max_mem_usage);
 		else if(max_mem_usage < POW_2_20)
-			printf("MAX Memory usage:   	%.2f MByte\n", (double) max_mem_usage / POW_2_10);
+			ft_printf_ln(table,"%s|%.2f MByte", "MAX Memory usage",(double) max_mem_usage / POW_2_10);
 		else if(max_mem_usage < POW_2_30)
-			printf("MAX Memory usage:   	%.2f GByte\n", (double) max_mem_usage / POW_2_20);
+			ft_printf_ln(table,"%s|%.2f GByte", "MAX Memory usage",(double) max_mem_usage / POW_2_20);
 		else if(max_mem_usage < POW_2_40)
-			printf("MAX Memory usage:   	%.2f TByte\n", (double) max_mem_usage / POW_2_30);
+			ft_printf_ln(table,"%s|%.2f TByte", "MAX Memory usage",(double) max_mem_usage / POW_2_30);
 		else if(max_mem_usage < POW_2_50)
-			printf("MAX Memory usage:   	%.2f PByte\n", (double) max_mem_usage / POW_2_40);
+			ft_printf_ln(table,"%s|%.2f PByte", "MAX Memory usage",(double) max_mem_usage / POW_2_40);
 		else if(max_mem_usage < POW_2_60)
-			printf("MAX Memory usage:   	%.2f EByte\n", (double) max_mem_usage / POW_2_50);
+			ft_printf_ln(table,"%s|%.2f EByte", "MAX Memory usage",(double) max_mem_usage / POW_2_50);
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, ";%.0f", (double) max_mem_usage * 1024.0);
 
-		printf("AVG IPC:            			   %.2f\n", avg_ipc);
-		printf("AVG CPU frequency:      		   %.0f MHz\n", avg_freq);
-		printf("AVG CPU load:      		           %.2f\n", avg_load);
-		printf("Cycles:                 		   %lu\n", global_cycles);
-		printf("Instructions retired:   		   %lu\n", global_inst_ret);
+		ft_printf_ln(table,"%s|%.2f", "AVG IPC",avg_ipc);
+		ft_printf_ln(table,"%s|%.0f MHz", "AVG CPU frequency",avg_freq);
+		ft_printf_ln(table,"%s|%.2f", "AVG CPU load",avg_load);
+		ft_printf_ln(table,"%s|%lu", "Cycles",global_cycles);
+		ft_printf_ln(table,"%s|%lu", "Instructions retired",global_inst_ret);
 
         global_dp_flops_sec = (double)global_dp_flops/exe_time;
         global_sp_flops_sec = (double)global_sp_flops/exe_time;
         if (global_dp_flops_sec < POW_2_10) {
-		    printf("DP FLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP FLOPS/sec (64/128/256/512/TOT)",
                    (double)global_dp_flops_64/exe_time                            ,
                    (double)global_dp_flops_128/exe_time                           ,
                    (double)global_dp_flops_256/exe_time                           ,
                    (double)global_dp_flops_512/exe_time                           ,
                    (double)global_dp_flops_sec);
         } else if (global_dp_flops_sec < POW_2_20) {
-		    printf("DP KFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP KFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_10)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_10)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_10)/exe_time                 ,
                    ((double)global_dp_flops_512/POW_2_10)/exe_time                 ,
                    ((double)global_dp_flops_sec/POW_2_10));
        } else if (global_dp_flops_sec < POW_2_30) {
-		    printf("DP MFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP MFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_20)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_20)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_20)/exe_time                 ,
                    ((double)global_dp_flops_512/POW_2_20)/exe_time                 ,
                    ((double)global_dp_flops_sec/POW_2_20));
         } else if (global_dp_flops_sec < POW_2_40) {
-		    printf("DP GFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP GFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_30)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_30)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_30)/exe_time                 ,
                    ((double)global_dp_flops_512/POW_2_30)/exe_time                 ,
                    ((double)global_dp_flops_sec/POW_2_30));
         } else if (global_dp_flops_sec < POW_2_50) {
-		    printf("DP TFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP TFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_40)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_40)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_40)/exe_time                 ,
                    ((double)global_dp_flops_512/POW_2_40)/exe_time                 ,
                    ((double)global_dp_flops_sec/POW_2_40));
         } else if (global_dp_flops_sec < POW_2_60) {
-		    printf("DP PFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP PFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_50)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_50)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_50)/exe_time                 ,
                    ((double)global_dp_flops_512/POW_2_50)/exe_time                 ,
                    ((double)global_dp_flops_sec/POW_2_50));
         } else {
-		    printf("DP EFLOPS/sec (64/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","DP EFLOPS/sec (64/128/256/512/TOT)",
                    ((double)global_dp_flops_64/POW_2_60)/exe_time                  ,
                    ((double)global_dp_flops_128/POW_2_60)/exe_time                 ,
                    ((double)global_dp_flops_256/POW_2_60)/exe_time                 ,
@@ -948,49 +961,49 @@ HIDDEN void print_final_report()
                    ((double)global_dp_flops_sec/POW_2_60));
         }
         if (global_sp_flops_sec < POW_2_10) {
-		    printf("SP FLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP FLOPS/sec (32/128/256/512/TOT)",
                    (double)global_sp_flops_32/exe_time                            ,
                    (double)global_sp_flops_128/exe_time                           ,
                    (double)global_sp_flops_256/exe_time                           ,
                    (double)global_sp_flops_512/exe_time                           ,
                    (double)global_sp_flops_sec);
         } else if (global_sp_flops_sec < POW_2_20) {
-		    printf("SP KFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP KFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_10)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_10)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_10)/exe_time                 ,
                    ((double)global_sp_flops_512/POW_2_10)/exe_time                 ,
                    ((double)global_sp_flops_sec/POW_2_10));
        } else if (global_sp_flops_sec < POW_2_30) {
-		    printf("SP MFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP MFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_20)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_20)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_20)/exe_time                 ,
                    ((double)global_sp_flops_512/POW_2_20)/exe_time                 ,
                    ((double)global_sp_flops_sec/POW_2_20));
         } else if (global_sp_flops_sec < POW_2_40) {
-		    printf("SP GFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP GFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_30)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_30)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_30)/exe_time                 ,
                    ((double)global_sp_flops_512/POW_2_30)/exe_time                 ,
                    ((double)global_sp_flops_sec/POW_2_30));
         } else if (global_sp_flops_sec < POW_2_50) {
-		    printf("SP TFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP TFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_40)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_40)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_40)/exe_time                 ,
                    ((double)global_sp_flops_512/POW_2_40)/exe_time                 ,
                    ((double)global_sp_flops_sec/POW_2_40));
         } else if (global_sp_flops_sec < POW_2_60) {
-		    printf("SP PFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP PFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_50)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_50)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_50)/exe_time                 ,
                    ((double)global_sp_flops_512/POW_2_50)/exe_time                 ,
                    ((double)global_sp_flops_sec/POW_2_50));
         } else {
-		    printf("SP EFLOPS/sec (32/128/256/512/TOT): %.2f/%.2f/%.2f/%.2f/%.2f\n",
+		    ft_printf_ln(table,"%s|%.2f/%.2f/%.2f/%.2f/%.2f","SP EFLOPS/sec (32/128/256/512/TOT)",
                    ((double)global_sp_flops_32/POW_2_60)/exe_time                  ,
                    ((double)global_sp_flops_128/POW_2_60)/exe_time                 ,
                    ((double)global_sp_flops_256/POW_2_60)/exe_time                 ,
@@ -998,43 +1011,43 @@ HIDDEN void print_final_report()
                    ((double)global_sp_flops_sec/POW_2_60));
         }
         if (global_mem_data < POW_2_10) {
-		    printf("MEM Data Volume in Bytes: %.3f\n", (double)global_mem_data);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in Bytes", (double)global_mem_data);
         } else if (global_mem_data < POW_2_20) {
-		    printf("MEM Data Volume in KBytes: %.3f\n", (double)global_mem_data/POW_2_10);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in KBytes",(double)global_mem_data/POW_2_10);
         } else if (global_mem_data < POW_2_30) {
-		    printf("MEM Data Volume in MBytes: %.3f\n", (double)global_mem_data/POW_2_20);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in MBytes",(double)global_mem_data/POW_2_20);
         } else if (global_mem_data < POW_2_40) {
-		    printf("MEM Data Volume in GBytes: %.3f\n", (double)global_mem_data/POW_2_30);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in GBytes",(double)global_mem_data/POW_2_30);
         } else if (global_mem_data < POW_2_50) {
-		    printf("MEM Data Volume in TBytes: %.3f\n", (double)global_mem_data/POW_2_40);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in TBytes",(double)global_mem_data/POW_2_40);
         } else if (global_mem_data < POW_2_60) {
-		    printf("MEM Data Volume in PBytes: %.3f\n", (double)global_mem_data/POW_2_50);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in PBytes",(double)global_mem_data/POW_2_50);
         } else {
-		    printf("MEM Data Volume in EBytes: %.3f\n", (double)global_mem_data/POW_2_60);
+		    ft_printf_ln(table,"%s|%.3f","MEM Data Volume in EBytes",(double)global_mem_data/POW_2_60);
         }
         global_mem_bandwidth = ((double)global_mem_data)/exe_time;
         if (global_mem_bandwidth < POW_2_10) {
-		    printf("MEM Bandwidth in Bytes/s: %.3f\n", global_mem_bandwidth);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in Bytes/s",global_mem_bandwidth);
         } else if (global_mem_bandwidth < POW_2_20) {
-		    printf("MEM Bandwidth in KByte/s: %.3f\n", global_mem_bandwidth/POW_2_10);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in KByte/s",global_mem_bandwidth/POW_2_10);
         } else if (global_mem_bandwidth < POW_2_30) {
-		    printf("MEM Bandwidth in MBytes/s: %.3f\n", global_mem_bandwidth/POW_2_20);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in MBytes/s",global_mem_bandwidth/POW_2_20);
         } else if (global_mem_bandwidth < POW_2_40) {
-		    printf("MEM Bandwidth in GBytes/s: %.3f\n", global_mem_bandwidth/POW_2_30);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in GBytes/s",global_mem_bandwidth/POW_2_30);
         } else if (global_mem_bandwidth < POW_2_50) {
-		    printf("MEM Bandwidth in TBytes/s: %.3f\n", global_mem_bandwidth/POW_2_40);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in TBytes/s",global_mem_bandwidth/POW_2_40);
         } else if (global_mem_bandwidth < POW_2_60) {
-		    printf("MEM Bandwidth in PBytes/s: %.3f\n", global_mem_bandwidth/POW_2_50);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in PBytes/s",global_mem_bandwidth/POW_2_50);
         } else {
-		    printf("MEM Bandwidth in EBytes/s: %.3f\n", global_mem_bandwidth/POW_2_60);
+		    ft_printf_ln(table,"%s|%.3f","MEM Bandwidth in EBytes/s",global_mem_bandwidth/POW_2_60);
         }
-        printf("DP Computational intensity in FLOPS/bytes: %.3f\n", (double)global_dp_flops/(double)global_mem_data);
-        printf("SP Computational intensity in FLOPS/bytes: %.3f\n", (double)global_sp_flops/(double)global_mem_data);
-        printf("DP Vector ratio: %.3f\n"                                                                        ,
+        ft_printf_ln(table,"%s|%.3f","DP Computational intensity in FLOPS/bytes",(double)global_dp_flops/(double)global_mem_data);
+        ft_printf_ln(table,"%s|%.3f","SP Computational intensity in FLOPS/bytes",(double)global_sp_flops/(double)global_mem_data);
+        ft_printf_ln(table,"%s|%.3f","DP Vector ratio"                                                                        ,
               (global_dp_flops > 0)                                                                             ?
               (double)(global_dp_flops_128 + global_dp_flops_256 + global_dp_flops_512)/(double)global_dp_flops :
               0.0);
-        printf("SP Vector ratio: %.3f\n"                                                                        ,
+        ft_printf_ln(table,"%s|%.3f","SP Vector ratio"                                                                        ,
               (global_sp_flops > 0)                                                                             ?
               (double)(global_sp_flops_128 + global_sp_flops_256 + global_sp_flops_512)/(double)global_sp_flops :
               0.0);
@@ -1097,11 +1110,13 @@ HIDDEN void print_final_report()
 		{
 			if(cntd->perf_fd[0][i] > 0)
 			{
-				printf("Perf event %d:           %lu\n", i, global_perf[i]);
+				ft_printf_ln(table,"%s %d|%lu","Perf event", i, global_perf[i]);
 				if(cntd->enable_report) 
 					fprintf(summary_report_fd, ";%lu", global_perf[i]);
 			}
 		}
+                printf("%s\n", ft_to_string(table));
+                ft_destroy_table(table);
 
 #ifdef NVIDIA_GPU
 		double global_util = 0;
@@ -1124,26 +1139,34 @@ HIDDEN void print_final_report()
 		global_temp /= (double) num_gpus;
 		global_clock /= (double) num_gpus;
 
+
 		printf("##################### GPU REPORTING ##################\n");
-		printf("AVG Utilization:        %.2f%%\n", global_util);
-		printf("AVG Mem Utilization:    %.2f%%\n", global_util_mem);
-		printf("AVG Temperature:        %.2f C\n", global_temp);
-		printf("AVG Frequency:          %.0f MHz\n", global_clock);
+		table = ft_create_table();
+		ft_printf_ln(table,"%s|%.2f%%","AVG Utilization",global_util);
+		ft_printf_ln(table,"%s|%.2f%%","AVG Mem Utilization",global_util_mem);
+		ft_printf_ln(table,"%s|%.2f C","AVG Temperature",global_temp);
+		ft_printf_ln(table,"%s|%.0f MHz","AVG Frequency",global_clock);
+                printf("%s\n", ft_to_string(table));
+                ft_destroy_table(table);
 
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, ";%.2f;%.2f;%.2f;%.0f",
 				global_util, global_util_mem, global_temp, global_clock);
 #endif
 		printf("##################### MPI TIMING #####################\n");
-		printf("APP time: %.3f sec (%.2f%%)\n", app_time, (app_time/(app_time+mpi_time))*100.0);
-		printf("MPI time: %.3f sec (%.2f%%)\n", mpi_time, (mpi_time/(app_time+mpi_time))*100.0);
-		printf("TOT time: %.3f sec (100.00%%)\n", app_time+mpi_time);
+		table = ft_create_table();
+		ft_printf_ln(table,"%s|%.3f sec (%.2f%%)","APP time",app_time,(app_time/(app_time+mpi_time))*100.0);
+		ft_printf_ln(table,"%s|%.3f sec (%.2f%%)","MPI time",mpi_time,(mpi_time/(app_time+mpi_time))*100.0);
+		ft_printf_ln(table,"%s|%.3f sec (100.00%%)","TOT time",app_time+mpi_time);
+                printf("%s\n", ft_to_string(table));
+                ft_destroy_table(table);
 
 		if(cntd->enable_report)
 			fprintf(summary_report_fd, ";%.9f;%.9f;%.9f",
 				app_time, mpi_time, app_time+mpi_time);
 
 		printf("##################### MPI REPORTING ##################\n");
+		table = ft_create_table();
 		for(j = 0; j < NUM_MPI_TYPE; j++)
 		{
 			if(mpi_type_cnt[j] > 0)
@@ -1190,6 +1213,8 @@ HIDDEN void print_final_report()
 				printf("\n");
 			}
 		}
+                printf("%s\n", ft_to_string(table));
+                ft_destroy_table(table);
 
 		uint64_t cntd_impact_cnt = 0;
 		double cntd_impact_time = 0;

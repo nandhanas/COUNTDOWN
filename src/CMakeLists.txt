@@ -41,7 +41,8 @@ set(SOURCES
 	timer.c
 	wrapper_pmpi_c_cpp.c
 	wrapper_pmpi_fortran.c
-	hwp.c)
+	hwp.c
+	fort.c)
 
 # Add dynamic library
 add_library(cntd SHARED ${SOURCES})

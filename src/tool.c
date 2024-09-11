@@ -625,6 +625,36 @@ HIDDEN void get_rand_postfix(char *postfix, int size)
 			 jid);
 }
 
+int a[10];
+void brandString()
+{
+    __asm__("mov $0x80000004 , %eax\n\t");
+    __asm__("cpuid\n\t");
+    __asm__("mov %%eax, %0\n\t":"=r" (a[0]));
+    __asm__("mov %%ebx, %0\n\t":"=r" (a[1]));
+    __asm__("mov %%ecx, %0\n\t":"=r" (a[2]));
+    __asm__("mov %%edx, %0\n\t":"=r" (a[3]));
+    printf("%s\n", &a[0]);
+
+}
+
+float getCpuID()
+{
+    __asm__("xor %eax , %eax\n\t");
+    __asm__("xor %ebx , %ebx\n\t");
+    __asm__("xor %ecx , %ecx\n\t");
+    __asm__("xor %edx , %edx\n\t");
+    brandString();
+    char *token;
+    token = strtok((char*)&a[0],"@");
+    token = strtok(NULL, "@");
+    float nom_freq;
+    sscanf(token, "%fGHz", &nom_freq);
+    nom_freq *= 1000;
+    return nom_freq;
+}
+
+
 #ifdef INTEL
 HIDDEN int read_intel_nom_freq()
 {
@@ -644,7 +674,7 @@ HIDDEN int read_intel_nom_freq()
     {
     
             fd = fopen("/proc/cpuinfo", "r");
-            if(fd != NULL)
+            if(fd == NULL)
             {
                 size_t n = 0;
                 char *line = NULL;
@@ -665,8 +695,9 @@ HIDDEN int read_intel_nom_freq()
             }
             else
             {   
-                fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo\n", cntd->node.hostname, cntd->rank->world_rank);
-                PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
+          //      fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo\n", cntd->node.hostname, cntd->rank->world_rank);
+	          nom_freq = getCpuID();
+	  //	PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
 
             }
         
@@ -674,3 +705,5 @@ HIDDEN int read_intel_nom_freq()
     return (int) (nom_freq);
 }
 #endif
+
+
