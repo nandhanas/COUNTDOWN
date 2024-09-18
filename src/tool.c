@@ -674,7 +674,7 @@ HIDDEN int read_intel_nom_freq()
     {
     
             fd = fopen("/proc/cpuinfo", "r");
-            if(fd == NULL)
+            if(fd != NULL)
             {
                 size_t n = 0;
                 char *line = NULL;
@@ -695,7 +695,7 @@ HIDDEN int read_intel_nom_freq()
             }
             else
             {   
-          //      fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo\n", cntd->node.hostname, cntd->rank->world_rank);
+                 // fprintf(stderr, "Error: <COUNTDOWN-node:%s-rank:%d> Failed to read file: /proc/cpuinfo. We are using getCPUID\n", cntd->node.hostname, cntd->rank->world_rank);
 	          nom_freq = getCpuID();
 	  //	PMPI_Abort(MPI_COMM_WORLD, EXIT_FAILURE);
 
